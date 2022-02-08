@@ -68,6 +68,46 @@ class ImageJuxtaposition extends H5P.Question {
       this.trigger('resize');
     });
 
+    this.attach = ((original) => {
+      return ($container) => {
+        original($container);
+        if (this.isRoot()) {
+          // Mark as consumed
+          this.triggerConsumed();
+          // Mark as completed
+          this.triggerCompleted();
+        }
+      }
+    })(this.attach);
+
+    /**
+     * Trigger the 'consumed' xAPI event when this commences
+     *
+     * (Will be more sophisticated in future version)
+     */
+    this.triggerConsumed = function () {
+      var xAPIEvent = this.createXAPIEventTemplate({
+        id: 'http://activitystrea.ms/schema/1.0/consume',
+        display: {
+          'en-US': 'consumed'
+        }
+      });
+      this.trigger(xAPIEvent);
+    };
+
+    /**
+     * Trigger the 'completed' xAPI event when this commences
+     *
+     * (Will be more sophisticated in future version)
+     */
+    this.triggerCompleted = function () {
+      var xAPIEvent = this.createXAPIEventTemplate('completed');
+      xAPIEvent.data.statement.result = {
+        'completion': true
+      };
+      this.trigger(xAPIEvent);
+    };
+
     /**
      * Register DOM elements with H5P.Question.
      */
